@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicApp Frontend</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.3/dist/web3.min.js"></script>
+    <script>
+        window.addEventListener('load', async () => {
+            // Connect to MetaMask
+            if (window.ethereum) {
+                window.web3 = new Web3(ethereum);
+                try {
+                    await ethereum.enable();
+                } catch (error) {
+                    console.error("User denied account access");
+                }
+            } else if (window.web3) {
+                window.web3 = new Web3(web3.currentProvider);
+            } else {
+                console.error("No Ethereum provider detected");
+            }
+
+            // Contract ABI (you need to replace this with your actual ABI)
+            const abi = [
+                // Your contract ABI here
+            ];
+
+            // Contract address (you need to replace this with your actual contract address)
+            const contractAddress = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
+
+            // Initialize contract
+            const contract = new web3.eth.Contract(abi, contractAddress);
+
+            // Function to upload song
+            document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const title = document.getElementById('title').value;
+                const contentURI = document.getElementById('contentURI').value;
+                const price = document.getElementById('price').value;
+
+                try {
+                    const accounts = await web3.eth.getAccounts();
+                    await contract.methods.uploadSong(title, contentURI, price).send({ from: accounts[0] });
+                    alert('Song uploaded successfully!');
+                    // You can add further actions here, like updating UI
+                } catch (error) {
+                    console.error(error);
+                    alert('Failed to upload song');
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Upload Song</h1>
+    <form id="uploadForm">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title" required><br>
+        <label for="contentURI">Content URI:</label><br>
+        <input type="text" id="contentURI" name="contentURI" required><br>
+        <label for="price">Price (in wei):</label><br>
+        <input type="number" id="price" name="price" required><br><br>
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
